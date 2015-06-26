@@ -6,19 +6,22 @@ main:
 	la	$a1, str2
 	jal	str_cmp
 	
+	move	$a0, $v0
+	li	$v0, 1
+	syscall
+	
 	j	exit
 
 exit:
 	li	$v0, 10
 	syscall
 	
-	.include "utils.asm"
-	
 	
 	.data
-prompt:
-	.asciiz "Hello"
 str1:
-	.asciiz "Test"
+	.asciiz "String goes here"
 str2:
-	.asciiz "Test"
+	.asciiz "String Goes here"
+
+	
+	.include "utils.asm"
