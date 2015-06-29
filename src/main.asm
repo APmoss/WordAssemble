@@ -10,6 +10,10 @@ main:
 	li	$v0, 1
 	syscall
 	
+	jal	open_words_file
+	move	$a0, $v0
+	jal	close_words_file
+	
 	j	exit
 
 exit:

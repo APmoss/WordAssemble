@@ -1,9 +1,10 @@
 	.globl str_cmp
+	.globl open_words_file
 	
 	.text
-str_cmp:
-	move	$t0, $a0
-	move	$t1, $a1
+str_cmp:					# Compare two null terminated strings.
+	move	$t0, $a0			# $a0, $a1 contains addresses of strings.
+	move	$t1, $a1			# Returns 1 if identical, or 0 if not.
 str_cmp_loop:
 	lb	$t2, ($t0)
 	lb	$t3, ($t1)
@@ -26,3 +27,22 @@ str_cmp_equal:
 str_cmp_notequal:
 	li	$v0, 0
 	jr	$ra
+
+open_words_file:				# Opens word list file
+	li	$v0, 13
+	la	$a0, words_path			# File path
+	li	$a1, 0				# Read
+	li	$a2, 0				# Mode ignored
+	syscall
+	
+	jr	$ra
+	
+close_words_file:				# Closes word list file
+	li	$v0, 16				# $a0 should contain file descriptor.
+	syscall
+	
+	jr	$ra
+	
+	.data
+words_path:
+	.asciiz	"content/words.txt"
