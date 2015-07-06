@@ -1,26 +1,49 @@
-	.globl str_cmp
-	.globl open_words_file
+	# utils.asm
+	# Shared routines and utilities to simplify code.
+	
+	.globl	print_int
+	.globl	print_str
+	.globl	str_cmp
+	.globl	open_file
+	.globl	close_file
 	
 	.text
-str_cmp:					# Compare two null terminated strings.
-	move	$t0, $a0			# $a0, $a1 contains addresses of strings.
-	move	$t1, $a1			# Returns 1 if identical, or 0 if not.
-str_cmp_loop:
-	lb	$t2, ($t0)
-	lb	$t3, ($t1)
+# Prints a signed 32-bit integer to the console.
+# Params	$a0 = Integer to print
+print_int:
+	li	$v0, 1
+	syscall
 	
-	seq	$t4, $t2, 0
-	seq	$t5, $t3, 0
-	add	$t6, $t4, $t5
+	jr	$ra
 	
-	add	$t0, $t0, 1
-	add	$t1, $t1, 1
+# Prints a null terminated string to the console.
+# Params	$a0 = Address of string to print
+print_str:
+	li	$v0, 4
+	syscall
 	
-	beq	$t6, 1, str_cmp_notequal
-	beq	$t6, 2, str_cmp_equal
+	jr	$ra
+
+# Compares two null term-inated strings.
+# Params	$a0 = Address of string 1
+#		$a1 = Address of string 2
+# Returns	$v0 = 1 if identical, 0 if not identical
+str_cmp:
+	lbu	$t0, 0($a0)
+	lbu	$t1, 0($a1)
 	
-	bne	$t4, $t5, str_cmp_notequal
-	j	str_cmp_loop
+	seq	$t2, $t0, 0
+	seq	$t3, $t1, 0
+	add	$t4, $t2, $t3
+	
+	add	$a0, $a0, 1
+	add	$a1, $a1, 1
+	
+	beq	$t4, 1, str_cmp_notequal
+	beq	$t4, 2, str_cmp_equal
+	
+	bne	$t0, $t1, str_cmp_notequal
+	j	str_cmp
 str_cmp_equal:
 	li	$v0, 1
 	jr	$ra
@@ -28,21 +51,26 @@ str_cmp_notequal:
 	li	$v0, 0
 	jr	$ra
 
-open_words_file:				# Opens word list file
+# Opens file for reading.
+# Params	$a0 = String of file path
+# Returns	$v0 = file descriptor
+open_file:
 	li	$v0, 13
-	la	$a0, words_path			# File path
 	li	$a1, 0				# Read
 	li	$a2, 0				# Mode ignored
 	syscall
 	
 	jr	$ra
-	
-close_words_file:				# Closes word list file
-	li	$v0, 16				# $a0 should contain file descriptor.
+
+# Closes file elegantly.
+# Params	$a0 = File descriptor to close
+close_file:
+	li	$v0, 16
 	syscall
 	
 	jr	$ra
-	
+
+
 	.data
-words_path:
-	.asciiz	"content/words.txt"
+buffer:
+	.space	1
