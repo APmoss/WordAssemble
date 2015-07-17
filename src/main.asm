@@ -7,28 +7,44 @@
 	# Global entry point.
 	
 	.globl	main
+	.globl	menu
 	
 	.text
 main:
-	la	$a0, data_prompt
-	jal	print_str
+	jal	clrscr
+	# Other initialization logic goes here
 	
-	la	$a0, str1
-	la	$a1, str2
-	jal	str_cmp
+menu:
+	la	$a0, data_welcome
+	jal	println_str
+
+menu_selection:
+	jal	read_int
 	
-	move	$a0, $v0
-	jal	print_int		# Example- will print 1 if str1 = str2, 0 if not equal
+	beq	$v0, 1, start_new_game
+	beq	$v0, 2, high_scores
+	beq	$v0, 3, goodbye
+	
+	la	$a0, data_invalid
+	jal	println_str
+	
+	j	menu_selection
+	
+	# Testing, ignore
+	#la	$a0, data_testFile_path
+	#la	$a0, data_words_path
+	#jal	open_file
+	
+	#move	$a0, $v0
+	#jal	load_dict
+	
+goodbye:
+	jal	endl
+	la	$a0, data_goodbye
+	jal	println_str
 	
 	j	exit
 
 exit:
 	li	$v0, 10
 	syscall
-	
-	
-	.data
-str1:
-	.asciiz "String goes here"
-str2:
-	.asciiz "String goes here"
