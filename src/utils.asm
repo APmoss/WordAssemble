@@ -6,6 +6,8 @@
 	.globl	print_str
 	.globl	println_str
 	.globl	read_int
+	.globl	read_str
+	.globl	read_char
 	.globl	endl
 	.globl	clrscr
 	.globl	str_cmp
@@ -61,6 +63,23 @@ println_str:
 # Returns	$v0 = Integer typed into console
 read_int:
 	li	$v0, 5
+	syscall
+	
+	jr	$ra
+	
+# Reads a string from the console.
+# Params	$a0 = Address of input buffer
+#		$a1 = Max number of characters to read
+read_str:
+	li	$v0, 8
+	syscall
+	
+	jr	$ra
+	
+# Reads a single key from the console.
+# Returns	$v0 = ASCII key typed into console
+read_char:
+	li	$v0, 12
 	syscall
 	
 	jr	$ra
