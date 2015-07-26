@@ -10,7 +10,11 @@
 	.globl	read_char
 	.globl	endl
 	.globl	clrscr
+	.globl	init_rng
+	.globl	next_int
 	.globl	str_cmp
+	.globl	str_len
+	.globl	parse_int
 	.globl	open_file
 	.globl	close_file
 	
@@ -106,6 +110,30 @@ clrscr:
 	
 	jr	$ra
 	
+# Initializes the random number generator
+init_rng:
+	li	$v0, 30
+	syscall
+	move	$a1, $a0
+	li	$a0, 0
+	li	$v0, 40
+	syscall
+	
+	jr	$ra
+	
+# Gets a random integer from 0 to the selected number.
+# Params	$a0 = Maximum random number, exclusive
+# Returns	$v0 = The generated random number
+next_int:
+	move	$a1, $a0
+	li	$a0, 0
+	li	$v0, 42
+	syscall
+	
+	move	$v0, $a0
+	
+	jr	$ra
+	
 # Compares two null terminated strings.
 # Params	$a0 = Address of string 1
 #		$a1 = Address of string 2
@@ -131,6 +159,57 @@ str_cmp_equal:
 	jr	$ra
 str_cmp_notequal:
 	li	$v0, 0
+	jr	$ra
+	
+# Gets the number of characters in a string.
+# Params	$a0 = Address of null terminated string
+# Returns	$v0 = Number of characters in the string
+str_len:
+	li	$v0, 0
+str_len_loop:
+	add	$t0, $a0, $v0
+	lb	$t1, 0($t0)
+	
+	beq	$t1, 0, str_len_ret
+	
+	addi	$v0, $v0, 1
+	
+	j	str_len_loop
+str_len_ret:
+	jr	$ra
+	
+# Parses a string for an unsigned integer
+# Params	$a0 = Address of null terminated string to parse
+# Returns	$v0 = Number parsed from the string
+parse_int:
+	addi	$sp, $sp, -8
+	sw	$ra, 0($sp)
+	sw	$a0, 4($sp)
+	
+	jal	str_len
+	move	$t0, $v0
+	subi	$t1, $v0, 1
+	li	$v0, 0
+	
+	lw	$ra, 0($sp)
+	lw	$a0, 4($sp)
+	addi	$sp, $sp, 8
+parse_int_loop:
+	subi	$t0, $t0, 1
+	
+	bltz	$t0, parse_int_ret
+	
+	sub	$t2, $t1, $t0
+	add	$t2, $t2, $a0
+	lbu	$t3, 0($t2)
+	
+	andi	$t4, $t3, 0x0f
+	
+	mul	$v0, $v0, 10
+	add	$v0, $v0, $t4
+	
+	j	parse_int_loop
+parse_int_ret:
 	jr	$ra
 	
 # Opens file for reading.

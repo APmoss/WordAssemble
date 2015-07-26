@@ -15,6 +15,8 @@ characters_selection:
 	blt	$v0, 5, invalid_characters
 	bgt	$v0, 7, invalid_characters
 	
+	sw	$v0, num_characters
+	
 	# TODO: Continue game stuff
 	
 	j	menu
@@ -26,7 +28,16 @@ invalid_characters:
 	
 	j	characters_selection
 
+# Shuffles the letters in a string of ASCII characters.
+# Params	$a0 = Address of null-terminated string to scramble
+scramble_word:
+	# TODO implement
+	
+	jr	$ra
+
 
 	.data
 characters_prompt:
-	.asciiz	"How many characters should the words be? (5 - 7): "
+	.asciiz	"How many characters should the starting word be? (5 - 7): "
+num_characters:
+	.word	0
