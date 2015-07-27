@@ -15,6 +15,7 @@
 	.globl	str_cmp
 	.globl	str_len
 	.globl	parse_int
+	.globl	clr_mem
 	.globl	open_file
 	.globl	close_file
 	
@@ -210,6 +211,19 @@ parse_int_loop:
 	
 	j	parse_int_loop
 parse_int_ret:
+	jr	$ra
+	
+# Clears the memory address with zeroes.
+# Params	$a0 = Address to start clearing
+#		$a1 = Number of bytes to clear
+clr_mem:
+	li	$t0, 0
+	add	$t1, $a0, $a1
+clr_mem_loop:
+	sb	$t0, 0($a0)
+	addi	$a0, $a0, 1
+	blt	$a0, $t1, clr_mem_loop
+	
 	jr	$ra
 	
 # Opens file for reading.
