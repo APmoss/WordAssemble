@@ -14,6 +14,7 @@
 	.globl	next_int
 	.globl	str_cmp
 	.globl	str_len
+	.globl	str_isSubset
 	.globl	parse_int
 	.globl	clr_mem
 	.globl	open_file
@@ -177,6 +178,15 @@ str_len_loop:
 	
 	j	str_len_loop
 str_len_ret:
+	jr	$ra
+	
+# Checks if a string contains all elements of another string.
+# Params	$a0 = String that is a possible subset
+#		$a1 = String that we are comparing against
+# Returns	$v0 = 1 if $a0 is subset of $a1, 0 if not
+str_isSubset:
+	
+	
 	jr	$ra
 	
 # Parses a string for an unsigned integer
