@@ -185,7 +185,22 @@ str_len_ret:
 #		$a1 = String that we are comparing against
 # Returns	$v0 = 1 if $a0 is subset of $a1, 0 if not
 str_isSubset:
+	addi	$sp, $sp, -20
+	sw	$ra, 0($sp)
+	sw	$a0, 4($sp)				# 4($sp) = First string
+	sw	$a1, 8($sp)				# 8(#sp) = Second string
 	
+	jal	str_len
+	sw	$v0, 12($sp)				# 12($sp) = Length of first string
+	
+	lw	$a0, 8($sp)
+	jal	str_len
+	sw	$v0, 16($sp)				# 16($sp) = Length of second string
+	
+	
+	
+	lw	$ra, 0($sp)
+	addi	$sp, $sp, 20
 	
 	jr	$ra
 	
