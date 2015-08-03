@@ -6,6 +6,7 @@
 	.globl	data_press_any_key
 	.globl	data_words_path
 	.globl	data_testFile_path
+	.globl	data_press_to_continue
 	
 	.data
 data_prompt:
@@ -18,3 +19,5 @@ data_words_path:
 	.asciiz	"content/words.txt"
 data_testFile_path:
 	.asciiz	"content/testFile.txt"
+data_press_to_continue:
+	.asciiz	"Press any key to continue."

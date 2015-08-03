@@ -14,8 +14,10 @@
 	.globl	next_int
 	.globl	str_cmp
 	.globl	str_len
+	.globl	str_rnl
 	.globl	parse_int
 	.globl	clr_mem
+	.globl	fill_mem
 	.globl	open_file
 	.globl	close_file
 	
@@ -179,6 +181,24 @@ str_len_loop:
 str_len_ret:
 	jr	$ra
 	
+# Removes newlines from a string, replacing it with a null terminator.
+# Params	$a0 = Address of string to inspect
+str_rnl:
+	lb	$t0, 0($a0)
+	beq	$t0, '\n', str_rnl_nl
+	beq	$t0, 0, str_rnl_end
+	
+	addi	$a0, $a0, 1
+	
+	j	str_rnl
+str_rnl_nl:
+	li	$t0, 0
+	sb	$a0, 0($t0)
+	
+	jr	$ra
+str_rnl_end:
+	jr	$ra
+	
 # Parses a string for an unsigned integer
 # Params	$a0 = Address of null terminated string to parse
 # Returns	$v0 = Number parsed from the string
@@ -226,6 +246,19 @@ clr_mem_loop:
 	
 	jr	$ra
 	
+# Fills the memory address with a specified value
+# Params	$a0 = Address to start filling
+#		$a1 = Number of bytes to clear
+#		$a2 = Value to fill bytes with
+fill_mem:
+	add	$t1, $a0, $a1
+fill_mem_loop:
+	sb	$a2, 0($a0)
+	addi	$a0, $a0, 1
+	blt	$a0, $t1, fill_mem_loop
+	
+	jr	$ra
+	
 # Opens file for reading.
 # Params	$a0 = String of file path
 # Returns	$v0 = File descriptor
@@ -251,5 +284,5 @@ newline:
 	.byte	'\n'
 clrscr_str:
 	.asciiz	"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-buffer:
-	.space	1
+isSubset_buffer:
+	.space	16

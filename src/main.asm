@@ -24,7 +24,7 @@ menu_selection:
 	jal	read_int
 	
 	beq	$v0, 1, start_new_game
-	beq	$v0, 2, high_scores
+	#beq	$v0, 2, high_scores
 	beq	$v0, 3, goodbye
 	beq	$v0, 9, debug_menu
 	
@@ -50,7 +50,7 @@ debug_menu:
 debug_menu_selection:
 	jal	read_int
 	
-	beq	$v0, 1, new_high_score
+	#beq	$v0, 1, new_high_score
 	beq	$v0, 2, new_random_number
 	beq	$v0, 3, menu
 	
@@ -91,9 +91,9 @@ exit:
 test:
 	.asciiz	"123456"
 main_menu_prompt:
-	.asciiz	"Welcome to WordAssemble! Select an option to begin-\n1) New Game\n2) High Scores\n3) Exit\n9) Debug Tools"
+	.asciiz	"Welcome to WordAssemble! Select an option to begin-\n1) New Game\n3) Exit\n9) Debug Tools"
 debug_menu_prompt:
-	.asciiz	"Select a debug test-\n1) New High Score entry\n2) Get a random number\n3) Return to main menu"
+	.asciiz	"Select a debug test-\n2) Get a random number\n3) Return to main menu"
 new_random_number_prompt:
 	.asciiz	"Enter the upper bound of the random number, or -1 to return to the main menu: "
 goodbye_message:

@@ -2,7 +2,7 @@
 	# Code related to the dictionary.
 	
 	.globl	get_random_word
-	.globl	load_dict
+	.globl	get_anagrams
 	
 	.text
 # Gets a random word at a specified length
@@ -73,6 +73,87 @@ get_random_word_loop:
 	
 	jr	$ra
 	
+# Gets all possible anagrams for a word.
+# Params	$a0 = Address of word we are getting anagrams for
+# Returns	$v0 = Address of anagram list
+#		$v1 = Address of anagram count
+get_anagrams:
+	addi	$sp, $sp, -16
+	sw	$ra, 0($sp)
+	sw	$a0, 4($sp)			# 4($sp) = Address of word we are getting anagrams for
+	
+	la	$a0, anagrams_filename_buffer+17
+	li	$a1, 8
+	jal	clr_mem
+	
+	lw	$a0, 4($sp)
+	jal	str_len
+	li	$t0, 0				# $t0 = Iterator
+	move	$t1, $v0			# $t1 = Length of word we are getting anagrams for
+get_anagrams_loop:
+	lw	$t2, 4($sp)
+	add	$t2, $t2, $t0
+	lb	$t3, 0($t2)
+	la	$t4, anagrams_filename_buffer+17
+	add	$t4, $t4, $t0
+	sb	$t3, 0($t4)
+	
+	addi	$t0, $t0, 1
+	blt	$t0, $t1, get_anagrams_loop
+get_anagrams_file:
+	li	$a0, 1024
+	li	$v0, 9
+	syscall					# Allocate 1k heap space
+	
+	sw	$v0, 8($sp)			# 8($sp) = Address of buffer to hold all anagrams
+	
+	la	$a0, anagrams_filename_buffer
+	jal	open_file
+	
+	sw	$v0, 12($sp)
+	
+	move	$a0, $v0
+	lw	$a1, 8($sp)
+	li	$a2, 1024
+	li	$v0, 14
+	syscall
+	
+	lw	$a0, 12($sp)
+	jal	close_file
+count_anagrams:
+	# TODO: clear anagrams_size_counts
+	li	$t0, 0				# $t0 = Iterator
+	lw	$t1, 8($sp)			# $t1 = Address of buffer to hold all anagrams
+	move	$t4, $t1			# $t4 = Address of start of word currently counting
+count_anagrams_loop:
+	add	$t2, $t1, $t0
+	lb	$t3, 0($t2)
+	
+	addi	$t0, $t0, 1
+	
+	beq	$t3, '\n', count_anagram
+	beq	$t3, 0, count_anagram
+	
+	j	count_anagrams_loop
+count_anagram:
+	sub	$t5, $t2, $t4
+	#todo remove subi	$t5, $t5, 1
+	lb	$t6, anagram_size_counts($t5)
+	addi	$t6, $t6, 1
+	sb	$t6, anagram_size_counts($t5)
+	addi	$t4, $t2, 1
+	
+	beq	$t3, 0, count_anagrams_end
+	
+	j	count_anagrams_loop
+count_anagrams_end:
+	lw	$v0, 8($sp)
+	la	$v1, anagram_size_counts
+	lw	$ra, 0($sp)
+	addi	$sp, $sp, 16
+	
+	jr	$ra
+	
 # Reads the header of a dictionary segment
 # Params	$a0 = File descriptor
 #		$a1 = Length of words in file
@@ -104,74 +185,16 @@ read_header:
 	addi	$sp, $sp, 12
 	
 	jr	$ra
-	
-# Initializes dictionary routines.
-# Params	$a0 = File descriptor of dictionary file
-# Returns	$v0 = asd
-load_dict:
-	li	$v0, 14
-	la	$a1, buffer
-	li	$a2, 1048576
-	
-	syscall
-	
-	li	$t0, 0
-	sw	$v0, dict_full_size
-load_dict_count_loop:
-	move	$t1, $t0
-load_dict_count_loop_inner:
-	addi	$t1, $t1, 1
-	lb	$t2, buffer($t1)
-	
-	bne	$t2, '\n', load_dict_count_loop_inner
-	
-	sub	$t3, $t1, $t0				# Word size
-	sll	$t3, $t3, 2				# Multiply time 4 so we can access word index
-	lw	$t2, word_size_counts($t3)		# Add one to that word size count
-	addi	$t2, $t2, 1
-	sw	$t2, word_size_counts($t3)
-	
-	addi	$t0, $t1, 1
-	blt	$t0, $v0, load_dict_count_loop
-	
-	# testing, ignore
-	move	$t4, $ra
-	jal	endl
-	jal	endl
-	lw	$a0, word_size_counts+0
-	jal	println_int
-	lw	$a0, word_size_counts+4
-	jal	println_int
-	lw	$a0, word_size_counts+8
-	jal	println_int
-	lw	$a0, word_size_counts+12
-	jal	println_int
-	lw	$a0, word_size_counts+16
-	jal	println_int
-	lw	$a0, word_size_counts+20
-	jal	println_int
-	lw	$a0, word_size_counts+24
-	jal	println_int
-	lw	$a0, word_size_counts+28
-	jal	println_int
-	lw	$a0, word_size_counts+32
-	jal	println_int
-	lw	$a0, word_size_counts+36
-	jal	println_int
-	
-	move	$ra, $t4
-	#asd
-	
-	jr	$ra
+
 
 	.data
 filename_buffer:
 	.asciiz	"content/processed2/xx"
+anagrams_filename_buffer:
+	.asciiz	"content/anagrams/xxxxxxxx"
+anagrams_word_buffer:
+	.space	10
 header_buffer:
 	.space	8
-dict_full_size:
-	.word	0
-word_size_counts:				# Word counts up to 25 letters long
-	.word	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-buffer:						# 1 MiB buffer, dictionary shouldn't be larger than this.
-	.space	1048576
+anagram_size_counts:
+	.byte	0, 0, 0, 0, 0, 0, 0, 0
