@@ -14,11 +14,8 @@
 	.globl	next_int
 	.globl	str_cmp
 	.globl	str_len
-<<<<<<< HEAD
 	.globl	str_rnl
-=======
-	.globl	str_isSubset
->>>>>>> origin/master
+	.globl	str_isAnagram
 	.globl	parse_int
 	.globl	clr_mem
 	.globl	fill_mem
@@ -185,7 +182,6 @@ str_len_loop:
 str_len_ret:
 	jr	$ra
 	
-<<<<<<< HEAD
 # Removes newlines from a string, replacing it with a null terminator.
 # Params	$a0 = Address of string to inspect
 str_rnl:
@@ -202,12 +198,13 @@ str_rnl_nl:
 	
 	jr	$ra
 str_rnl_end:
-=======
+	jr	$ra
+	
 # Checks if a string contains all elements of another string.
-# Params	$a0 = String that is a possible subset
+# Params	$a0 = String that is a possible anagram
 #		$a1 = String that we are comparing against
 # Returns	$v0 = 1 if $a0 is subset of $a1, 0 if not
-str_isSubset:
+str_isAnagram:
 	addi	$sp, $sp, -20
 	sw	$ra, 0($sp)
 	sw	$a0, 4($sp)				# 4($sp) = First string
@@ -225,7 +222,6 @@ str_isSubset:
 	lw	$ra, 0($sp)
 	addi	$sp, $sp, 20
 	
->>>>>>> origin/master
 	jr	$ra
 	
 # Parses a string for an unsigned integer
