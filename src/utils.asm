@@ -14,7 +14,11 @@
 	.globl	next_int
 	.globl	str_cmp
 	.globl	str_len
+<<<<<<< HEAD
 	.globl	str_rnl
+=======
+	.globl	str_isSubset
+>>>>>>> origin/master
 	.globl	parse_int
 	.globl	clr_mem
 	.globl	fill_mem
@@ -181,6 +185,7 @@ str_len_loop:
 str_len_ret:
 	jr	$ra
 	
+<<<<<<< HEAD
 # Removes newlines from a string, replacing it with a null terminator.
 # Params	$a0 = Address of string to inspect
 str_rnl:
@@ -197,6 +202,30 @@ str_rnl_nl:
 	
 	jr	$ra
 str_rnl_end:
+=======
+# Checks if a string contains all elements of another string.
+# Params	$a0 = String that is a possible subset
+#		$a1 = String that we are comparing against
+# Returns	$v0 = 1 if $a0 is subset of $a1, 0 if not
+str_isSubset:
+	addi	$sp, $sp, -20
+	sw	$ra, 0($sp)
+	sw	$a0, 4($sp)				# 4($sp) = First string
+	sw	$a1, 8($sp)				# 8(#sp) = Second string
+	
+	jal	str_len
+	sw	$v0, 12($sp)				# 12($sp) = Length of first string
+	
+	lw	$a0, 8($sp)
+	jal	str_len
+	sw	$v0, 16($sp)				# 16($sp) = Length of second string
+	
+	
+	
+	lw	$ra, 0($sp)
+	addi	$sp, $sp, 20
+	
+>>>>>>> origin/master
 	jr	$ra
 	
 # Parses a string for an unsigned integer
