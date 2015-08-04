@@ -13,6 +13,7 @@
 	.globl	init_rng
 	.globl	next_int
 	.globl	str_cmp
+	.globl	str_cpy
 	.globl	str_len
 	.globl	str_rnl
 	.globl	str_isAnagram
@@ -165,6 +166,45 @@ str_cmp_notequal:
 	li	$v0, 0
 	jr	$ra
 	
+# Copy content from one string to another.
+# Params	$a0 = Address of source string
+#		$a1 = Address of destination string
+str_cpy:
+	addi	$sp, $sp, -20
+	sw	$ra, 0($sp)
+	sw	$a0, 4($sp)				# 4($sp) = Source string
+	sw	$a1, 8($sp)				# 8($sp) = Destination string
+	
+	jal	str_len
+	sw	$v0, 12($sp)				# 12($sp) = Length of source string
+	
+	lw	$a0, 8($sp)
+	jal	str_len
+	sw	$v0, 16($sp)				# 16($sp) = Length of destination string
+	
+	lw	$a0, 8($sp)
+	lw	$a1, 16($sp)
+	jal	clr_mem
+	
+	li	$t0, 0
+	lw	$t1, 12($sp)
+	lw	$a0, 4($sp)
+	lw	$a1, 8($sp)
+str_cpy_loop:
+	add	$t2, $t0, $a0
+	lb	$t3, 0($t2)
+	add	$t2, $t0, $a1
+	sb	$t3, 0($t2)
+	
+	addi	$t0, $t0, 1
+	
+	blt	$t0, $t1, str_cpy_loop
+	
+	lw	$ra, 0($sp)
+	addi	$sp, $sp, 20
+	
+	jr	$ra
+	
 # Gets the number of characters in a string.
 # Params	$a0 = Address of null terminated string
 # Returns	$v0 = Number of characters in the string
@@ -201,14 +241,14 @@ str_rnl_end:
 	jr	$ra
 	
 # Checks if a string contains all elements of another string.
-# Params	$a0 = String that is a possible anagram
-#		$a1 = String that we are comparing against
-# Returns	$v0 = 1 if $a0 is subset of $a1, 0 if not
+# Params	$a0 = Address of string that is a possible anagram
+#		$a1 = Address of string that we are comparing against
+# Returns	$v0 = 1 if $a0 is anagram of $a1, 0 if not
 str_isAnagram:
 	addi	$sp, $sp, -20
 	sw	$ra, 0($sp)
 	sw	$a0, 4($sp)				# 4($sp) = First string
-	sw	$a1, 8($sp)				# 8(#sp) = Second string
+	sw	$a1, 8($sp)				# 8($sp) = Second string
 	
 	jal	str_len
 	sw	$v0, 12($sp)				# 12($sp) = Length of first string
@@ -217,8 +257,52 @@ str_isAnagram:
 	jal	str_len
 	sw	$v0, 16($sp)				# 16($sp) = Length of second string
 	
+	lw	$t0, 12($sp)
+	lw	$t1, 16($sp)
+	seq	$v0, $t0, $t1
 	
+	beqz	$v0, str_isAnagram_ret
 	
+	la	$a0, isAnagram_buffer
+	li	$a1, 16
+	jal	clr_mem
+	
+	lw	$a0, 8($sp)
+	la	$a1, isAnagram_buffer			# Copy second word into buffer
+	jal	str_cpy
+	
+	li	$t0, 0					# $t0 = Iterator outer
+	lw	$t1, 12($sp)
+	lw	$t2, 16($sp)
+	lw	$a0, 4($sp)				# $a0 = Address of first word
+	la	$a1, isAnagram_buffer			# $a1 = Address of second word buffer
+str_isAnagram_loop:
+	add	$t3, $a0, $t0				# $t3 = Address of letter we are on in the first word
+	lb	$t4, 0($t3)				# $t4 = Letter we are on in the first word
+	
+	addi	$t0, $t0, 1
+	seq	$v0, $t4, 0
+	beq	$v0, 1, str_isAnagram_ret
+	
+	li	$t5, 0					# $t5 = Iterator inner
+str_isAnagram_inner:
+	add	$t6, $a1, $t5				# $t6 = Address of letter we are on in the second word buffer
+	lb	$t7, 0($t6)				# $t7 = Letter we are on in the second word buffer
+	
+	addi	$t5, $t5, 1
+	
+	sne	$v0, $t7, 0				# Set $v0 = 0 if $t7 = 0
+	beqz	$v0, str_isAnagram_ret			# Not an anagram
+	
+	beq	$t7, $t4, str_isAnagram_replace
+	
+	j	str_isAnagram_inner
+str_isAnagram_replace:
+	li	$t8, '_'
+	sb	$t8, 0($t6)
+	
+	j	str_isAnagram_loop
+str_isAnagram_ret:
 	lw	$ra, 0($sp)
 	addi	$sp, $sp, 20
 	
@@ -309,5 +393,5 @@ newline:
 	.byte	'\n'
 clrscr_str:
 	.asciiz	"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-isSubset_buffer:
+isAnagram_buffer:
 	.space	16

@@ -52,7 +52,7 @@ game_menu:
 game_menu_selection:
 	jal	read_int
 	
-	#beq	$v0, 1, rearrange
+	beq	$v0, 1, rearrange
 	beq	$v0, 2, guess_word
 	beq	$v0, 3, show_remaining
 	beq	$v0, 4, quit_check
@@ -61,6 +61,44 @@ game_menu_selection:
 	jal	println_str
 	
 	j	game_menu_selection
+	
+rearrange:
+	jal	clrscr
+rearrange_get:
+	la	$a0, guess_word_buffer
+	li	$a1, 16
+	jal	clr_mem
+	
+	la	$a0, rearrange_message
+	jal	print_str
+	la	$a0, word_buffer
+	jal	println_str
+	la	$a0, guess_word_buffer
+	li	$a1, 13
+	jal	read_str
+	
+	la	$a0, guess_word_buffer
+	jal	str_len
+	li	$t0, 0
+	sb	$t0, guess_word_buffer+-1($v0)
+	
+	la	$a0, guess_word_buffer
+	la	$a1, word_buffer
+	jal	str_isAnagram
+	
+	beq	$v0, 1, rearrange_valid
+	
+	la	$a0, rearrange_invalid
+	jal	println_str
+	jal	endl
+	
+	j	rearrange_get
+rearrange_valid:
+	la	$a0, guess_word_buffer
+	la	$a1, word_buffer
+	jal	str_cpy
+	
+	j	game_menu
 	
 guess_word:
 	la	$a0, guess_word_prompt
@@ -316,6 +354,10 @@ remaining_message:
 	.asciiz	"Remaining solutions-"
 letter_words:
 	.asciiz	" letter words: "
+rearrange_message:
+	.asciiz	"Enter your rearrangement of "
+rearrange_invalid:
+	.asciiz	"That is not a valid rearrangement. Please try again."
 anagram_list_ptr:
 	.word	0
 anagram_size_count_ptr:
