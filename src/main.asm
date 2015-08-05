@@ -33,14 +33,6 @@ menu_selection:
 	
 	j	menu_selection
 	
-	# Testing, ignore
-	#la	$a0, data_testFile_path
-	#la	$a0, data_words_path
-	#jal	open_file
-	
-	#move	$a0, $v0
-	#jal	load_dict
-	
 debug_menu:
 	jal	clrscr
 	la	$a0, debug_menu_prompt

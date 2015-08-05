@@ -5,6 +5,20 @@
 	
 	.text
 start_new_game:
+	li $a0, 64
+	li $a1, 400
+	li $a2, 114
+	li $a3, 100
+	li $v0, 31
+	syscall
+	syscall
+	syscall
+	li $a0, 72
+	li $a1, 400
+	li $a2, 10
+	li $a3, 100
+	li $v0, 31
+	syscall
 	li	$t0, 0
 	sw	$t0, current_score
 	jal	clrscr
@@ -176,8 +190,13 @@ check_word_spec:
 	j	check_word_loop
 	
 word_correct:
-	# TODO: play a sound
-	
+	# play a sound
+	li $a0, 72
+	li $a1, 400
+	li $a2, 10
+	li $a3, 100
+	li $v0, 31
+	syscall
 	la	$a0, guess_word_buffer
 	jal	str_len
 	
@@ -211,7 +230,13 @@ word_correct:
 	j	game_menu
 	
 word_incorrect:
-	# TODO: play sound
+	# play sound
+	li $a0, 55
+	li $a1, 400
+	li $a2, 35
+	li $a3, 100
+	li $v0, 31
+	syscall
 	la	$a0, word_incorrect_message
 	jal	println_str
 	la	$a0, data_press_to_continue
@@ -247,6 +272,20 @@ show_remaining_loop:
 	j	game_menu
 	
 quit_check:
+	li $a0, 72
+	li $a1, 200
+	li $a2, 48
+	li $a3, 100
+	li $v0, 31
+	syscall
+	syscall
+	li $a0, 55
+	li $a1, 400
+	li $a2, 48
+	li $a3, 100
+	li $v0, 31
+	syscall
+	
 	jal	clrscr
 	la	$a0, quit_message
 	jal	println_str
