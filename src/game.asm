@@ -2,6 +2,7 @@
 	# Code related to the game logic itself.
 	
 	.globl	start_new_game
+	.globl 	word_buffer
 	
 	.text
 start_new_game:
@@ -63,6 +64,9 @@ game_menu:
 	la	$a0, game_menu_prompt
 	jal	println_str
 	jal	endl
+	jal	gui
+	jal	gui_letters
+	
 game_menu_selection:
 	jal	read_int
 	

@@ -2,7 +2,14 @@
 	# Assembled with MARS 4.5
 	# Settings -> "Assemble all files in directory" = TRUE
 	# Settings -> "Initialize Program Counter to global 'main' if defined" = TRUE
-	
+	# Tools -> click Bitmap Display
+	# Set Unit Width in Pixels to 16
+	# Set Unit Height in Pixels to 16
+	# Set Display Width in Pixels to 512
+	# Set Display Height in Pixels to 512
+	# Set Base Address for Display to 0x10008000 ($gp)
+	# Click Connect to MIPS
+
 	# main.asm
 	# Global entry point.
 	
@@ -12,6 +19,7 @@
 	.text
 main:
 	jal	init_rng
+	jal 	gui
 	# Other initialization logic goes here
 	
 menu:
